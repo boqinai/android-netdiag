@@ -2,7 +2,7 @@
 
 [中文说明](README_CN.md)
 
-Coroutine-first Android network diagnosis SDK (`minSdk 23`). It reports network state, DNS, ping, TCP connect, traceroute, HTTP(S), and external IP as structured results.
+Coroutine-first Android network diagnosis SDK (`minSdk 23`). It reports network state, DNS, ping, TCP connect, traceroute, HTTP(S), and external IP as structured results, together with basic device, system, and application information.
 
 ```kotlin
 val report = NetDiag(context).run(DiagnosticConfig("baidu.com"))
@@ -21,3 +21,9 @@ Build and run the demo:
 .\gradlew.bat :demo:assembleDebug
 adb install -r demo\build\outputs\apk\debug\demo-debug.apk
 ```
+
+## Basic information
+
+`DiagnosticReport.device` includes manufacturer, brand, model, device name, Android version/API level, CPU ABIs, screen resolution, locale, time zone, and network type. `DiagnosticReport.app` includes app name, package name, version name/code, and debug/release state.
+
+No additional permission is required. The SDK does not collect IMEI, Android ID, phone number, MAC address, serial number, or other unique device identifiers.

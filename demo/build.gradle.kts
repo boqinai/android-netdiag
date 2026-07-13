@@ -1,15 +1,14 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
     namespace = "com.boqinai.android.netdiag.demo"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "com.boqinai.android.netdiag.demo"
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
     }
@@ -23,6 +22,6 @@ android {
 dependencies {
     implementation(project(":netdiag"))
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     testImplementation("junit:junit:4.13.2")
 }

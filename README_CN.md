@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-一个协程优先的 Android 网络诊断 SDK（`minSdk 23`），可将网络状态、DNS、Ping、TCP 连接、Traceroute、HTTP(S) 和外网 IP 检测结果汇总为结构化报告。
+一个协程优先的 Android 网络诊断 SDK（`minSdk 23`），可将网络状态、DNS、Ping、TCP 连接、Traceroute、HTTP(S) 和外网 IP 检测结果汇总为结构化报告。报告还会自动包含设备、系统和当前应用的基础信息。
 
 ## 使用方式
 
@@ -25,3 +25,11 @@ Ping 和 Traceroute 依赖 Android 系统镜像提供的命令。如果设备不
 .\gradlew.bat :demo:assembleDebug
 adb install -r demo\build\outputs\apk\debug\demo-debug.apk
 ```
+## 基础信息
+
+`DiagnosticReport` 的 `device` 和 `app` 字段包含：
+
+- 设备：厂商、品牌、型号、设备名、Android 版本/API、CPU ABI、屏幕分辨率、语言、时区和网络类型。
+- 应用：应用名、包名、版本名、版本号和 Debug/Release 状态。
+
+这些信息不需要新增权限。SDK 不采集 IMEI、Android ID、手机号、MAC、序列号等设备唯一标识或隐私信息。

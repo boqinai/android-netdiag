@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.last
 
 class NetDiag
 private constructor(
-    private val probes: List<Pair<ProbeKind, suspend (DiagnosticConfig) -> ProbeResult>>
+    private val probes: List<Pair<ProbeKind, suspend (DiagnosticConfig) -> ProbeResult>>,
+    private val systemInfo: SystemInfo?,
 ) {
     constructor(
         context: Context
@@ -20,12 +21,13 @@ private constructor(
             ProbeKind.TRACEROUTE to ::traceProbe,
             ProbeKind.HTTP to ::httpProbe,
             ProbeKind.EXTERNAL_IP to ::externalIpProbe,
-        )
+        ),
+        collectSystemInfoSafely(context),
     )
 
     internal constructor(
         probe: suspend (ProbeKind, DiagnosticConfig) -> ProbeResult
-    ) : this(ProbeKind.entries.map { it to { c -> probe(it, c) } })
+    ) : this(ProbeKind.entries.map { it to { c -> probe(it, c) } }, null)
 
     fun events(config: DiagnosticConfig): Flow<DiagnosticEvent> = flow {
         val started = System.currentTimeMillis()
@@ -39,7 +41,13 @@ private constructor(
         }
         emit(
             DiagnosticEvent.Finished(
-                DiagnosticReport(started, System.currentTimeMillis() - started, results)
+                DiagnosticReport(
+                    started,
+                    System.currentTimeMillis() - started,
+                    results,
+                    systemInfo?.device,
+                    systemInfo?.app,
+                )
             )
         )
     }

@@ -43,15 +43,42 @@ data class ProbeResult(
     val error: String? = null,
 )
 
+data class DeviceInfo(
+    val manufacturer: String,
+    val brand: String,
+    val model: String,
+    val device: String,
+    val androidVersion: String,
+    val apiLevel: Int,
+    val supportedAbis: List<String>,
+    val screenWidthPixels: Int,
+    val screenHeightPixels: Int,
+    val locale: String,
+    val timeZone: String,
+    val networkType: String,
+)
+
+data class AppInfo(
+    val packageName: String,
+    val appName: String,
+    val versionName: String,
+    val versionCode: Long,
+    val debuggable: Boolean,
+)
+
 data class DiagnosticReport(
     val startedAtEpochMs: Long,
     val durationMs: Long,
     val results: List<ProbeResult>,
+    val device: DeviceInfo? = null,
+    val app: AppInfo? = null,
 ) {
     fun toJson(): String =
         JSONObject()
             .put("startedAtEpochMs", startedAtEpochMs)
             .put("durationMs", durationMs)
+            .put("device", device?.toJson() ?: JSONObject.NULL)
+            .put("app", app?.toJson() ?: JSONObject.NULL)
             .put(
                 "results",
                 JSONArray(
@@ -67,6 +94,29 @@ data class DiagnosticReport(
             )
             .toString(2)
 }
+
+private fun DeviceInfo.toJson() =
+    JSONObject()
+        .put("manufacturer", manufacturer)
+        .put("brand", brand)
+        .put("model", model)
+        .put("device", device)
+        .put("androidVersion", androidVersion)
+        .put("apiLevel", apiLevel)
+        .put("supportedAbis", JSONArray(supportedAbis))
+        .put("screenWidthPixels", screenWidthPixels)
+        .put("screenHeightPixels", screenHeightPixels)
+        .put("locale", locale)
+        .put("timeZone", timeZone)
+        .put("networkType", networkType)
+
+private fun AppInfo.toJson() =
+    JSONObject()
+        .put("packageName", packageName)
+        .put("appName", appName)
+        .put("versionName", versionName)
+        .put("versionCode", versionCode)
+        .put("debuggable", debuggable)
 
 sealed interface DiagnosticEvent {
     data class Started(val kind: ProbeKind) : DiagnosticEvent
