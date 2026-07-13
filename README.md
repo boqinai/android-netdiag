@@ -1,5 +1,7 @@
 # Android NetDiag
 
+[中文说明](README_CN.md)
+
 Coroutine-first Android network diagnosis SDK (`minSdk 23`). It reports network state, DNS, ping, TCP connect, traceroute, HTTP(S), and external IP as structured results.
 
 ```kotlin
