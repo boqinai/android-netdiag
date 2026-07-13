@@ -1,60 +1,156 @@
 package com.boqinai.android.netdiag.demo
 
+import android.graphics.Color
 import android.os.Bundle
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.boqinai.android.netdiag.*
+import com.boqinai.android.netdiag.DiagnosticConfig
+import com.boqinai.android.netdiag.DiagnosticEvent
+import com.boqinai.android.netdiag.NetDiag
+import com.boqinai.android.netdiag.ProbeKind
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private var job: Job? = null
 
+    private val labels =
+        mapOf(
+            ProbeKind.NETWORK to "当前网络",
+            ProbeKind.DNS to "DNS 解析",
+            ProbeKind.PING to "网络延迟",
+            ProbeKind.TCP to "互联网连接",
+            ProbeKind.TRACEROUTE to "路由信息",
+            ProbeKind.HTTP to "网页访问",
+            ProbeKind.EXTERNAL_IP to "业务服务",
+        )
+
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         setContentView(R.layout.activity_main)
-        val host = findViewById<EditText>(R.id.host)
-        val port = findViewById<EditText>(R.id.port)
-        val url = findViewById<EditText>(R.id.url)
-        val ip = findViewById<EditText>(R.id.ipUrl)
-        val output = findViewById<TextView>(R.id.output)
-        findViewById<Button>(R.id.run).setOnClickListener {
-            currentFocus?.let { view ->
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .hideSoftInputFromWindow(view.windowToken, 0)
-                view.clearFocus()
-            }
-            try {
-                val config =
-                    DiagnosticConfig(
-                        host.text.toString(),
-                        port.text.toString().toInt(),
-                        url.text.toString(),
-                        externalIpUrl = ip.text.toString(),
-                    )
-                output.text = ""
-                job?.cancel()
-                job = lifecycleScope.launch {
-                    NetDiag(this@MainActivity).events(config).collect { e ->
-                        output.append(
-                            when (e) {
-                                is DiagnosticEvent.Started -> "\n▶ ${e.kind}\n"
-                                is DiagnosticEvent.Completed ->
-                                    "${if(e.result.success) "✓" else "✗"} ${e.result.detail.ifBlank { e.result.error.orEmpty() }}\n"
-                                is DiagnosticEvent.Finished -> e.report.toJson() + "\n"
-                            }
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                output.text = e.message
-            }
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
         }
-        findViewById<Button>(R.id.cancel).setOnClickListener {
-            job?.cancel()
-            output.append("\nCancelled\n")
+
+        val summary = findViewById<TextView>(R.id.summary)
+        val output = findViewById<TextView>(R.id.output)
+        val details = findViewById<Button>(R.id.details)
+        val run = findViewById<Button>(R.id.run)
+        val statusViews =
+            mapOf(
+                ProbeKind.NETWORK to findViewById<TextView>(R.id.statusNetwork),
+                ProbeKind.DNS to findViewById(R.id.statusDns),
+                ProbeKind.PING to findViewById(R.id.statusPing),
+                ProbeKind.TCP to findViewById(R.id.statusTcp),
+                ProbeKind.TRACEROUTE to findViewById(R.id.statusTrace),
+                ProbeKind.HTTP to findViewById(R.id.statusHttp),
+                ProbeKind.EXTERNAL_IP to findViewById(R.id.statusService),
+            )
+
+        details.setOnClickListener {
+            val showing = output.visibility == View.VISIBLE
+            output.visibility = if (showing) View.GONE else View.VISIBLE
+            details.text = if (showing) "查看详细结果" else "收起详细结果"
+        }
+
+        run.setOnClickListener {
+            if (job?.isActive == true) {
+                job?.cancel()
+                return@setOnClickListener
+            }
+
+            statusViews.forEach { (kind, view) -> setStatus(view, kind, "等待检测") }
+            summary.text = "正在检测，请稍候…"
+            output.text = ""
+            output.visibility = View.GONE
+            details.visibility = View.GONE
+            run.text = "停止检测"
+
+            val config =
+                DiagnosticConfig(
+                    host = "baidu.com",
+                    url = "https://www.baidu.com",
+                    externalIpUrl = "https://www.boqinai.com",
+                )
+
+            job = lifecycleScope.launch {
+                var abnormal = 0
+                var slow = 0
+                try {
+                    NetDiag(this@MainActivity).events(config).collect { event ->
+                        when (event) {
+                            is DiagnosticEvent.Started ->
+                                setStatus(statusViews.getValue(event.kind), event.kind, "检测中…")
+
+                            is DiagnosticEvent.Completed -> {
+                                val result = event.result
+                                val level = assess(result).level
+                                if (level == AssessmentLevel.ABNORMAL) abnormal++
+                                if (level == AssessmentLevel.SLOW) slow++
+                                setStatus(
+                                    statusViews.getValue(result.kind),
+                                    result.kind,
+                                    level.label,
+                                    level,
+                                )
+                            }
+
+                            is DiagnosticEvent.Finished -> {
+                                summary.text = summaryText(abnormal, slow)
+                                summary.setTextColor(
+                                    color(
+                                        when {
+                                            abnormal > 0 -> AssessmentLevel.ABNORMAL
+                                            slow > 0 -> AssessmentLevel.SLOW
+                                            else -> AssessmentLevel.NORMAL
+                                        }
+                                    )
+                                )
+                                output.text = event.report.toJson()
+                                details.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+                } finally {
+                    run.text = "开始检测"
+                    if (summary.text.toString().startsWith("正在检测")) summary.text = "检测已停止"
+                }
+            }
         }
     }
+
+    private fun setStatus(
+        view: TextView,
+        kind: ProbeKind,
+        status: String,
+        level: AssessmentLevel? = null,
+    ) {
+        view.text = "${labels.getValue(kind)}　$status"
+        view.setTextColor(level?.let(::color) ?: Color.parseColor("#666666"))
+    }
+
+    private fun summaryText(abnormal: Int, slow: Int): String =
+        when {
+            abnormal > 0 && slow > 0 -> "发现 $abnormal 项异常，$slow 项较慢"
+            abnormal > 0 -> "发现 $abnormal 项异常，请查看检测结果"
+            slow > 0 -> "网络可用，$slow 项响应较慢"
+            else -> "网络状态正常"
+        }
+
+    private fun color(level: AssessmentLevel): Int =
+        Color.parseColor(
+            when (level) {
+                AssessmentLevel.NORMAL -> "#07C160"
+                AssessmentLevel.SLOW -> "#FA9D3B"
+                AssessmentLevel.ABNORMAL -> "#E64340"
+                AssessmentLevel.UNSUPPORTED -> "#999999"
+            }
+        )
 }

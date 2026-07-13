@@ -121,6 +121,9 @@ internal suspend fun networkProbe(context: Context) =
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = cm.activeNetwork ?: error("no active network")
         val caps = cm.getNetworkCapabilities(network)
+        check(caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+            "network is not validated"
+        }
         val links = cm.getLinkProperties(network)
         val type =
             when {

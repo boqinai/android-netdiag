@@ -1,70 +1,87 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <EditText
-        android:id="@+id/host"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Host"
-        android:text="baidu.com" />
-
-    <EditText
-        android:id="@+id/port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Port"
-        android:inputType="number"
-        android:text="443" />
-
-    <EditText
-        android:id="@+id/url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="URL"
-        android:inputType="textUri"
-        android:text="https://www.baidu.com" />
-
-    <EditText
-        android:id="@+id/ipUrl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="External IP URL"
-        android:inputType="textUri"
-        android:text="https://www.boqinai.com" />
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="网络检测"
+            android:textColor="#1A1A1A"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="检测当前网络和服务连接状态"
+            android:textColor="#777777"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="#FFFFFF"
+            android:padding="18dp"
+            android:text="点击下方按钮开始检测"
+            android:textColor="#333333"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#FFFFFF"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView android:id="@+id/statusNetwork" style="@style/StatusRow" android:text="当前网络　等待检测" />
+            <TextView android:id="@+id/statusDns" style="@style/StatusRow" android:text="DNS 解析　等待检测" />
+            <TextView android:id="@+id/statusPing" style="@style/StatusRow" android:text="网络延迟　等待检测" />
+            <TextView android:id="@+id/statusTcp" style="@style/StatusRow" android:text="互联网连接　等待检测" />
+            <TextView android:id="@+id/statusTrace" style="@style/StatusRow" android:text="路由信息　等待检测" />
+            <TextView android:id="@+id/statusHttp" style="@style/StatusRow" android:text="网页访问　等待检测" />
+            <TextView android:id="@+id/statusService" style="@style/StatusRow" android:text="业务服务　等待检测" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/run"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Run" />
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="20dp"
+            android:text="开始检测"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/cancel"
-            android:layout_width="0dp"
+            android:id="@+id/details"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cancel" />
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+            android:layout_marginTop="8dp"
+            android:text="查看详细结果"
+            android:textAllCaps="false"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/output"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#FFFFFF"
+            android:padding="12dp"
+            android:textColor="#444444"
             android:textIsSelectable="true"
-            android:typeface="monospace" />
-    </ScrollView>
-</LinearLayout>
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>

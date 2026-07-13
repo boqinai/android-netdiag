@@ -24,4 +24,5 @@ dependencies {
     implementation(project(":netdiag"))
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.3")
+    testImplementation("junit:junit:4.13.2")
 }
