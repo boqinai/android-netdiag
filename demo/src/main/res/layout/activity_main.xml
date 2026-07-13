@@ -1,8 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="网络检测"
+            android:text="@string/app_name"
             android:textColor="#1A1A1A"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -22,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="检测当前网络和服务连接状态"
+            android:text="@string/subtitle"
             android:textColor="#777777"
             android:textSize="15sp" />
 
@@ -33,7 +32,7 @@
             android:layout_marginTop="24dp"
             android:background="#FFFFFF"
             android:padding="18dp"
-            android:text="点击下方按钮开始检测"
+            android:text="@string/summary_idle"
             android:textColor="#333333"
             android:textSize="17sp" />
 
@@ -45,13 +44,13 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView android:id="@+id/statusNetwork" style="@style/StatusRow" android:text="当前网络　等待检测" />
-            <TextView android:id="@+id/statusDns" style="@style/StatusRow" android:text="DNS 解析　等待检测" />
-            <TextView android:id="@+id/statusPing" style="@style/StatusRow" android:text="网络延迟　等待检测" />
-            <TextView android:id="@+id/statusTcp" style="@style/StatusRow" android:text="互联网连接　等待检测" />
-            <TextView android:id="@+id/statusTrace" style="@style/StatusRow" android:text="路由信息　等待检测" />
-            <TextView android:id="@+id/statusHttp" style="@style/StatusRow" android:text="网页访问　等待检测" />
-            <TextView android:id="@+id/statusService" style="@style/StatusRow" android:text="业务服务　等待检测" />
+            <TextView android:id="@+id/statusNetwork" style="@style/StatusRow" android:text="@string/status_network_idle" />
+            <TextView android:id="@+id/statusDns" style="@style/StatusRow" android:text="@string/status_dns_idle" />
+            <TextView android:id="@+id/statusPing" style="@style/StatusRow" android:text="@string/status_ping_idle" />
+            <TextView android:id="@+id/statusTcp" style="@style/StatusRow" android:text="@string/status_tcp_idle" />
+            <TextView android:id="@+id/statusTrace" style="@style/StatusRow" android:text="@string/status_trace_idle" />
+            <TextView android:id="@+id/statusHttp" style="@style/StatusRow" android:text="@string/status_http_idle" />
+            <TextView android:id="@+id/statusService" style="@style/StatusRow" android:text="@string/status_service_idle" />
         </LinearLayout>
 
         <Button
@@ -59,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="20dp"
-            android:text="开始检测"
+            android:text="@string/start_diagnostic"
             android:textAllCaps="false" />
 
         <Button
@@ -67,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="查看详细结果"
+            android:text="@string/show_details"
             android:textAllCaps="false"
             android:visibility="gone" />
 

@@ -1,13 +1,13 @@
 package com.boqinai.android.netdiag.demo
 
-import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.boqinai.android.netdiag.DiagnosticConfig
 import com.boqinai.android.netdiag.DiagnosticEvent
@@ -55,8 +55,8 @@ class MainActivity : AppCompatActivity() {
             )
 
         details.setOnClickListener {
-            val showing = output.visibility == View.VISIBLE
-            output.visibility = if (showing) View.GONE else View.VISIBLE
+            val showing = output.isVisible
+            output.isVisible = !showing
             details.text = if (showing) "查看详细结果" else "收起详细结果"
         }
 
@@ -69,8 +69,8 @@ class MainActivity : AppCompatActivity() {
             statusViews.forEach { (kind, view) -> setStatus(view, kind, "等待检测") }
             summary.text = "正在检测，请稍候…"
             output.text = ""
-            output.visibility = View.GONE
-            details.visibility = View.GONE
+            output.isVisible = false
+            details.isVisible = false
             run.text = "停止检测"
 
             val config =
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                                 output.text = event.report.toJson()
-                                details.visibility = View.VISIBLE
+                                details.isVisible = true
                             }
                         }
                     }
@@ -132,8 +132,8 @@ class MainActivity : AppCompatActivity() {
         status: String,
         level: AssessmentLevel? = null,
     ) {
-        view.text = "${labels.getValue(kind)}　$status"
-        view.setTextColor(level?.let(::color) ?: Color.parseColor("#666666"))
+        view.text = getString(R.string.status_format, labels.getValue(kind), status)
+        view.setTextColor(level?.let(::color) ?: "#666666".toColorInt())
     }
 
     private fun summaryText(abnormal: Int, slow: Int): String =
@@ -145,12 +145,10 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun color(level: AssessmentLevel): Int =
-        Color.parseColor(
-            when (level) {
-                AssessmentLevel.NORMAL -> "#07C160"
-                AssessmentLevel.SLOW -> "#FA9D3B"
-                AssessmentLevel.ABNORMAL -> "#E64340"
-                AssessmentLevel.UNSUPPORTED -> "#999999"
-            }
-        )
+        when (level) {
+            AssessmentLevel.NORMAL -> "#07C160"
+            AssessmentLevel.SLOW -> "#FA9D3B"
+            AssessmentLevel.ABNORMAL -> "#E64340"
+            AssessmentLevel.UNSUPPORTED -> "#999999"
+        }.toColorInt()
 }

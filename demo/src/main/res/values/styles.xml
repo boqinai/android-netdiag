@@ -2,6 +2,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#07C160</item>
         <item name="colorPrimaryDark">#05A650</item>
+        <item name="android:windowBackground">#F5F5F5</item>
     </style>
 
     <style name="StatusRow">

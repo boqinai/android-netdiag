@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">网络检测</string>
+    <string name="subtitle">检测当前网络和服务连接状态</string>
+    <string name="summary_idle">点击下方按钮开始检测</string>
+    <string name="status_network_idle">当前网络　等待检测</string>
+    <string name="status_dns_idle">DNS 解析　等待检测</string>
+    <string name="status_ping_idle">网络延迟　等待检测</string>
+    <string name="status_tcp_idle">互联网连接　等待检测</string>
+    <string name="status_trace_idle">路由信息　等待检测</string>
+    <string name="status_http_idle">网页访问　等待检测</string>
+    <string name="status_service_idle">业务服务　等待检测</string>
+    <string name="start_diagnostic">开始检测</string>
+    <string name="show_details">查看详细结果</string>
+    <string name="status_format">%1$s　%2$s</string>
+</resources>

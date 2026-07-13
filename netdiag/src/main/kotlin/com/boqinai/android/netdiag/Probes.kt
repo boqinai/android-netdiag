@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
 
 internal suspend fun runProbe(kind: ProbeKind, block: suspend () -> String): ProbeResult {
     val start = System.nanoTime()
@@ -51,7 +52,7 @@ internal suspend fun tcpProbe(c: DiagnosticConfig) =
 internal suspend fun pingProbe(c: DiagnosticConfig) =
     commandProbe(
         ProbeKind.PING,
-        c.timeout.inWholeMilliseconds,
+        c.timeout,
         "ping",
         "-c",
         c.pingCount.toString(),
@@ -61,16 +62,20 @@ internal suspend fun pingProbe(c: DiagnosticConfig) =
 internal suspend fun traceProbe(c: DiagnosticConfig) =
     commandProbe(
         ProbeKind.TRACEROUTE,
-        c.timeout.inWholeMilliseconds * c.maxHops,
+        c.timeout * c.maxHops,
         "traceroute",
         "-m",
         c.maxHops.toString(),
         c.host,
     )
 
-private suspend fun commandProbe(kind: ProbeKind, timeoutMs: Long, vararg command: String) =
+private suspend fun commandProbe(
+    kind: ProbeKind,
+    timeout: kotlin.time.Duration,
+    vararg command: String,
+) =
     runProbe(kind) {
-        withTimeout(timeoutMs) {
+        withTimeout(timeout) {
             withContext(Dispatchers.IO) {
                 val process = ProcessBuilder(*command).redirectErrorStream(true).start()
                 try {
@@ -78,7 +83,7 @@ private suspend fun commandProbe(kind: ProbeKind, timeoutMs: Long, vararg comman
                         process.exitValue()
                         break
                     } catch (_: IllegalThreadStateException) {
-                        delay(50)
+                        delay(50.milliseconds)
                     }
                     process.inputStream
                         .bufferedReader()
@@ -127,8 +132,8 @@ internal suspend fun networkProbe(context: Context) =
         val links = cm.getLinkProperties(network)
         val type =
             when {
-                caps?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true -> "wifi"
-                caps?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true -> "cellular"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
                 else -> "other"
             }
         "type=$type, addresses=${links?.linkAddresses?.joinToString()}, dns=${links?.dnsServers?.joinToString()}"
