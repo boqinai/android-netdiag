@@ -7,7 +7,7 @@ import org.junit.Test
 class DiagnosticConfigTest {
     @Test
     fun validatesInput() {
-        assertEquals(443, DiagnosticConfig("example.com").port)
+        assertEquals(443, DiagnosticConfig("baidu.com").port)
         listOf<() -> Unit>(
                 { DiagnosticConfig(" ") },
                 { DiagnosticConfig("x", port = 0) },

@@ -1,6 +1,7 @@
 package com.boqinai.android.netdiag.demo
 
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +21,11 @@ class MainActivity : AppCompatActivity() {
         val ip = findViewById<EditText>(R.id.ipUrl)
         val output = findViewById<TextView>(R.id.output)
         findViewById<Button>(R.id.run).setOnClickListener {
+            currentFocus?.let { view ->
+                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .hideSoftInputFromWindow(view.windowToken, 0)
+                view.clearFocus()
+            }
             try {
                 val config =
                     DiagnosticConfig(

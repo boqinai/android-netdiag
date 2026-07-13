@@ -7,10 +7,10 @@
 ## 使用方式
 
 ```kotlin
-val report = NetDiag(context).run(DiagnosticConfig("example.com"))
+val report = NetDiag(context).run(DiagnosticConfig("baidu.com"))
 println(report.toJson())
 
-NetDiag(context).events(DiagnosticConfig("example.com")).collect { event ->
+NetDiag(context).events(DiagnosticConfig("baidu.com")).collect { event ->
     // 更新诊断进度界面
 }
 ```

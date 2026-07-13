@@ -5,10 +5,10 @@
 Coroutine-first Android network diagnosis SDK (`minSdk 23`). It reports network state, DNS, ping, TCP connect, traceroute, HTTP(S), and external IP as structured results.
 
 ```kotlin
-val report = NetDiag(context).run(DiagnosticConfig("example.com"))
+val report = NetDiag(context).run(DiagnosticConfig("baidu.com"))
 println(report.toJson())
 
-NetDiag(context).events(DiagnosticConfig("example.com")).collect { event ->
+NetDiag(context).events(DiagnosticConfig("baidu.com")).collect { event ->
     // update progress UI
 }
 ```

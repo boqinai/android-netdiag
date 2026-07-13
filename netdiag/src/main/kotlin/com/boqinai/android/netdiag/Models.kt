@@ -8,11 +8,11 @@ import org.json.JSONObject
 data class DiagnosticConfig(
     val host: String,
     val port: Int = 443,
-    val url: String = "https://example.com",
+    val url: String = "https://www.baidu.com",
     val timeout: Duration = 5.seconds,
     val pingCount: Int = 4,
     val maxHops: Int = 20,
-    val externalIpUrl: String = "https://api.ipify.org",
+    val externalIpUrl: String = "https://www.boqinai.com",
 ) {
     init {
         require(host.isNotBlank())
