@@ -11,6 +11,7 @@ import java.net.URL
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -84,6 +85,10 @@ private suspend fun commandProbe(
         withTimeout(timeout) {
             withContext(Dispatchers.IO) {
                 val process = ProcessBuilder(*command).redirectErrorStream(true).start()
+                val job = coroutineContext[Job]
+                val cancellationHandler = job?.invokeOnCompletion {
+                    process.destroy()
+                }
                 try {
                     val output = process.inputStream.bufferedReader().use { it.readText() }
                     val exitCode = process.waitFor()
@@ -91,6 +96,7 @@ private suspend fun commandProbe(
                         if (exitCode != 0) error(it.ifBlank { "command failed" })
                     }
                 } finally {
+                    cancellationHandler?.dispose()
                     process.destroy()
                 }
             }

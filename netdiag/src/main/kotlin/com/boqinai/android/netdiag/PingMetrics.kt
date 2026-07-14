@@ -14,7 +14,7 @@ internal data class PingMetrics(
 
 internal fun parsePingMetrics(output: String): PingMetrics? {
     val times =
-        Regex("""(?:rtt|round-trip)[^=]*=\s*([\d.]+)/([\d.]+)/([\d.]+)/([\d.]+)\s*ms""")
+        RTT_REGEX
             .find(output)
             ?.groupValues
             ?.drop(1)
@@ -22,7 +22,7 @@ internal fun parsePingMetrics(output: String): PingMetrics? {
             ?.takeIf { it.size == 4 }
             ?: return null
     val loss =
-        Regex("""([\d.]+)%\s*packet loss""", RegexOption.IGNORE_CASE)
+        LOSS_REGEX
             .find(output)
             ?.groupValues
             ?.get(1)
@@ -30,3 +30,6 @@ internal fun parsePingMetrics(output: String): PingMetrics? {
             ?: return null
     return PingMetrics(times[0], times[1], times[2], times[3], loss)
 }
+
+private val RTT_REGEX = Regex("""(?:rtt|round-trip)[^=]*=\s*([\d.]+)/([\d.]+)/([\d.]+)/([\d.]+)\s*ms""")
+private val LOSS_REGEX = Regex("""([\d.]+)%\s*packet loss""", RegexOption.IGNORE_CASE)
