@@ -1,6 +1,9 @@
 package com.boqinai.android.netdiag.demo
 
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +28,8 @@ class MainActivity : AppCompatActivity() {
             ProbeKind.DNS to "DNS 解析",
             ProbeKind.PING to "网络延迟",
             ProbeKind.TCP to "互联网连接",
+            ProbeKind.IPV4 to "IPv4 连接",
+            ProbeKind.IPV6 to "IPv6 连接",
             ProbeKind.TRACEROUTE to "路由信息",
             ProbeKind.HTTP to "网页访问",
             ProbeKind.EXTERNAL_IP to "业务服务",
@@ -49,6 +54,8 @@ class MainActivity : AppCompatActivity() {
                 ProbeKind.DNS to findViewById(R.id.statusDns),
                 ProbeKind.PING to findViewById(R.id.statusPing),
                 ProbeKind.TCP to findViewById(R.id.statusTcp),
+                ProbeKind.IPV4 to findViewById(R.id.statusIpv4),
+                ProbeKind.IPV6 to findViewById(R.id.statusIpv6),
                 ProbeKind.TRACEROUTE to findViewById(R.id.statusTrace),
                 ProbeKind.HTTP to findViewById(R.id.statusHttp),
                 ProbeKind.EXTERNAL_IP to findViewById(R.id.statusService),
@@ -94,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                                 val level = assess(result).level
                                 if (level == AssessmentLevel.ABNORMAL) abnormal++
                                 if (level == AssessmentLevel.SLOW) slow++
-                                val duration = displayDurationMs(level, result.durationMs)
+                                val duration = displayDurationMs(level, result)
                                 val statusText = if (duration != null) {
                                     getString(
                                         R.string.status_with_duration,
@@ -123,7 +130,18 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     )
                                 )
-                                output.text = event.report.toJson()
+                                val json = event.report.toJson()
+                                output.text =
+                                    SpannableString(json).apply {
+                                        abnormalDetailRanges(json, event.report.results).forEach { range ->
+                                            setSpan(
+                                                ForegroundColorSpan(color(AssessmentLevel.ABNORMAL)),
+                                                range.first,
+                                                range.last + 1,
+                                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+                                            )
+                                        }
+                                    }
                                 details.isVisible = true
                             }
                         }

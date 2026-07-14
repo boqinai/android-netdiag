@@ -30,6 +30,8 @@ enum class ProbeKind {
     DNS,
     PING,
     TCP,
+    IPV4,
+    IPV6,
     TRACEROUTE,
     HTTP,
     EXTERNAL_IP,

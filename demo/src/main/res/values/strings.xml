@@ -6,6 +6,8 @@
     <string name="status_dns_idle">DNS 解析　等待检测</string>
     <string name="status_ping_idle">网络延迟　等待检测</string>
     <string name="status_tcp_idle">互联网连接　等待检测</string>
+    <string name="status_ipv4_idle">IPv4 连接　等待检测</string>
+    <string name="status_ipv6_idle">IPv6 连接　等待检测</string>
     <string name="status_trace_idle">路由信息　等待检测</string>
     <string name="status_http_idle">网页访问　等待检测</string>
     <string name="status_service_idle">业务服务　等待检测</string>

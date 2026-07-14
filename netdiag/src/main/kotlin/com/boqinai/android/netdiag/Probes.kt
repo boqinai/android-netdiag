@@ -50,15 +50,20 @@ internal suspend fun tcpProbe(c: DiagnosticConfig) =
         }
     }
 
-internal suspend fun pingProbe(c: DiagnosticConfig) =
-    commandProbe(
-        ProbeKind.PING,
-        c.timeout,
-        "ping",
-        "-c",
-        c.pingCount.toString(),
-        c.host,
-    )
+internal suspend fun pingProbe(c: DiagnosticConfig): ProbeResult {
+    val result =
+        commandProbe(
+            ProbeKind.PING,
+            c.timeout,
+            "ping",
+            "-c",
+            c.pingCount.toString(),
+            c.host,
+        )
+    if (!result.success) return result
+    val metrics = parsePingMetrics(result.detail) ?: return result
+    return result.copy(detail = metrics.detail())
+}
 
 internal suspend fun traceProbe(c: DiagnosticConfig) =
     commandProbe(
@@ -111,7 +116,8 @@ private suspend fun fetch(kind: ProbeKind, url: String, timeoutMs: Int) =
     }
 
 internal suspend fun httpProbe(c: DiagnosticConfig) =
-    fetch(ProbeKind.HTTP, c.url, c.timeout.inWholeMilliseconds.toInt())
+    if (c.url.startsWith("https://")) httpsTimingProbe(c)
+    else fetch(ProbeKind.HTTP, c.url, c.timeout.inWholeMilliseconds.toInt())
 
 internal suspend fun externalIpProbe(c: DiagnosticConfig) =
     fetch(ProbeKind.EXTERNAL_IP, c.externalIpUrl, c.timeout.inWholeMilliseconds.toInt())
@@ -121,10 +127,7 @@ internal suspend fun networkProbe(context: Context) =
         withContext(Dispatchers.IO) {
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val network = cm.activeNetwork ?: error("no active network")
-            val caps = cm.getNetworkCapabilities(network)
-            check(caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
-                "network is not validated"
-            }
+            val caps = cm.getNetworkCapabilities(network) ?: error("network capabilities unavailable")
             val links = cm.getLinkProperties(network)
             val type =
                 when {
@@ -132,6 +135,14 @@ internal suspend fun networkProbe(context: Context) =
                     caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
                     else -> "other"
                 }
-            "type=$type, addresses=${links?.linkAddresses?.joinToString()}, dns=${links?.dnsServers?.joinToString()}"
+            networkDetail(
+                type = type,
+                validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED),
+                captivePortal = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL),
+                vpn = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN),
+                metered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED),
+                addresses = links?.linkAddresses?.joinToString().orEmpty(),
+                dns = links?.dnsServers?.joinToString().orEmpty(),
+            )
         }
     }

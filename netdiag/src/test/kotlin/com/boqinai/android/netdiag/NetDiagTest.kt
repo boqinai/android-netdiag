@@ -16,9 +16,9 @@ class NetDiagTest {
                 }
                 .events(DiagnosticConfig("x"))
                 .toList()
-        assertEquals(15, events.size)
+        assertEquals(ProbeKind.entries.size * 2 + 1, events.size)
         assertEquals(ProbeKind.NETWORK, (events[0] as DiagnosticEvent.Started).kind)
-        assertEquals(7, (events.last() as DiagnosticEvent.Finished).report.results.size)
+        assertEquals(ProbeKind.entries.size, (events.last() as DiagnosticEvent.Finished).report.results.size)
     }
 
     @Test

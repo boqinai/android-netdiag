@@ -18,6 +18,8 @@ private constructor(
             ProbeKind.DNS to ::dnsProbe,
             ProbeKind.PING to ::pingProbe,
             ProbeKind.TCP to ::tcpProbe,
+            ProbeKind.IPV4 to { ipFamilyProbe(it, ipv6 = false) },
+            ProbeKind.IPV6 to { ipFamilyProbe(it, ipv6 = true) },
             ProbeKind.TRACEROUTE to ::traceProbe,
             ProbeKind.HTTP to ::httpProbe,
             ProbeKind.EXTERNAL_IP to ::externalIpProbe,

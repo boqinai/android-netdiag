@@ -48,6 +48,8 @@
             <TextView android:id="@+id/statusDns" style="@style/StatusRow" android:text="@string/status_dns_idle" />
             <TextView android:id="@+id/statusPing" style="@style/StatusRow" android:text="@string/status_ping_idle" />
             <TextView android:id="@+id/statusTcp" style="@style/StatusRow" android:text="@string/status_tcp_idle" />
+            <TextView android:id="@+id/statusIpv4" style="@style/StatusRow" android:text="@string/status_ipv4_idle" />
+            <TextView android:id="@+id/statusIpv6" style="@style/StatusRow" android:text="@string/status_ipv6_idle" />
             <TextView android:id="@+id/statusTrace" style="@style/StatusRow" android:text="@string/status_trace_idle" />
             <TextView android:id="@+id/statusHttp" style="@style/StatusRow" android:text="@string/status_http_idle" />
             <TextView android:id="@+id/statusService" style="@style/StatusRow" android:text="@string/status_service_idle" />
