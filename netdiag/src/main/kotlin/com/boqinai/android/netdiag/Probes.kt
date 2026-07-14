@@ -80,18 +80,11 @@ private suspend fun commandProbe(
             withContext(Dispatchers.IO) {
                 val process = ProcessBuilder(*command).redirectErrorStream(true).start()
                 try {
-                    while (true) try {
-                        process.exitValue()
-                        break
-                    } catch (_: IllegalThreadStateException) {
-                        delay(50.milliseconds)
+                    val output = process.inputStream.bufferedReader().use { it.readText() }
+                    val exitCode = process.waitFor()
+                    output.take(32_768).also {
+                        if (exitCode != 0) error(it.ifBlank { "command failed" })
                     }
-                    process.inputStream
-                        .bufferedReader()
-                        .use { it.readText().take(32_768) }
-                        .also {
-                            if (process.exitValue() != 0) error(it.ifBlank { "command failed" })
-                        }
                 } finally {
                     process.destroy()
                 }
@@ -125,18 +118,20 @@ internal suspend fun externalIpProbe(c: DiagnosticConfig) =
 
 internal suspend fun networkProbe(context: Context) =
     runProbe(ProbeKind.NETWORK) {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = cm.activeNetwork ?: error("no active network")
-        val caps = cm.getNetworkCapabilities(network)
-        check(caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
-            "network is not validated"
-        }
-        val links = cm.getLinkProperties(network)
-        val type =
-            when {
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
-                else -> "other"
+        withContext(Dispatchers.IO) {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = cm.activeNetwork ?: error("no active network")
+            val caps = cm.getNetworkCapabilities(network)
+            check(caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+                "network is not validated"
             }
-        "type=$type, addresses=${links?.linkAddresses?.joinToString()}, dns=${links?.dnsServers?.joinToString()}"
+            val links = cm.getLinkProperties(network)
+            val type =
+                when {
+                    caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+                    caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
+                    else -> "other"
+                }
+            "type=$type, addresses=${links?.linkAddresses?.joinToString()}, dns=${links?.dnsServers?.joinToString()}"
+        }
     }

@@ -29,7 +29,7 @@ internal fun assess(result: ProbeResult): Assessment {
 
     if (result.kind == ProbeKind.PING) {
         val loss =
-            Regex("""(\d+(?:\.\d+)?)%\s*packet loss""", RegexOption.IGNORE_CASE)
+            LOSS_REGEX
                 .find(result.detail)
                 ?.groupValues
                 ?.get(1)
@@ -51,3 +51,5 @@ internal fun assess(result: ProbeResult): Assessment {
         if (result.durationMs > slowAfterMs) AssessmentLevel.SLOW else AssessmentLevel.NORMAL
     )
 }
+
+private val LOSS_REGEX = Regex("""(\d+(?:\.\d+)?)%\s*packet loss""", RegexOption.IGNORE_CASE)

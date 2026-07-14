@@ -94,16 +94,20 @@ class MainActivity : AppCompatActivity() {
                                 val level = assess(result).level
                                 if (level == AssessmentLevel.ABNORMAL) abnormal++
                                 if (level == AssessmentLevel.SLOW) slow++
+                                val duration = displayDurationMs(level, result.durationMs)
+                                val statusText = if (duration != null) {
+                                    getString(
+                                        R.string.status_with_duration,
+                                        level.label,
+                                        duration,
+                                    )
+                                } else {
+                                    level.label
+                                }
                                 setStatus(
                                     statusViews.getValue(result.kind),
                                     result.kind,
-                                    displayDurationMs(level, result.durationMs)?.let { durationMs ->
-                                        getString(
-                                            R.string.status_with_duration,
-                                            level.label,
-                                            durationMs,
-                                        )
-                                    } ?: level.label,
+                                    statusText,
                                     level,
                                 )
                             }
