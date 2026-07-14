@@ -9,8 +9,8 @@ android {
         applicationId = "com.boqinai.android.netdiag.demo"
         minSdk = 23
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 1000000
+        versionName = "1.0.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
