@@ -14,6 +14,11 @@ class AssessmentTest {
     }
 
     @Test
+    fun unsupportedProbeHidesDuration() {
+        assertEquals(null, displayDurationMs(AssessmentLevel.UNSUPPORTED, 12))
+    }
+
+    @Test
     fun failedProbeIsAbnormal() {
         val result = ProbeResult(ProbeKind.DNS, false, 100, "", "unknown host")
         assertEquals(AssessmentLevel.ABNORMAL, assess(result).level)

@@ -8,17 +8,18 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URL
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration.Companion.milliseconds
 
 internal suspend fun runProbe(kind: ProbeKind, block: suspend () -> String): ProbeResult {
     val start = System.nanoTime()
     return try {
-        ProbeResult(kind, true, (System.nanoTime() - start) / 1_000_000, block())
+        val detail = block()
+        ProbeResult(kind, true, (System.nanoTime() - start) / 1_000_000, detail)
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
@@ -98,7 +99,9 @@ private suspend fun commandProbe(
         }
     }
 
-private suspend fun fetch(kind: ProbeKind, url: String, timeoutMs: Int, body: Boolean) =
+internal fun httpDetail(url: String, status: Int) = "url=$url, status=$status"
+
+private suspend fun fetch(kind: ProbeKind, url: String, timeoutMs: Int) =
     runProbe(kind) {
         withContext(Dispatchers.IO) {
             val c = URL(url).openConnection() as HttpURLConnection
@@ -107,8 +110,7 @@ private suspend fun fetch(kind: ProbeKind, url: String, timeoutMs: Int, body: Bo
                 c.readTimeout = timeoutMs
                 c.instanceFollowRedirects = true
                 c.connect()
-                if (body) c.inputStream.bufferedReader().use { it.readText().take(1024) }
-                else "HTTP ${c.responseCode}"
+                httpDetail(url, c.responseCode)
             } finally {
                 c.disconnect()
             }
@@ -116,10 +118,10 @@ private suspend fun fetch(kind: ProbeKind, url: String, timeoutMs: Int, body: Bo
     }
 
 internal suspend fun httpProbe(c: DiagnosticConfig) =
-    fetch(ProbeKind.HTTP, c.url, c.timeout.inWholeMilliseconds.toInt(), false)
+    fetch(ProbeKind.HTTP, c.url, c.timeout.inWholeMilliseconds.toInt())
 
 internal suspend fun externalIpProbe(c: DiagnosticConfig) =
-    fetch(ProbeKind.EXTERNAL_IP, c.externalIpUrl, c.timeout.inWholeMilliseconds.toInt(), true)
+    fetch(ProbeKind.EXTERNAL_IP, c.externalIpUrl, c.timeout.inWholeMilliseconds.toInt())
 
 internal suspend fun networkProbe(context: Context) =
     runProbe(ProbeKind.NETWORK) {

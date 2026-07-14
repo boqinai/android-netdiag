@@ -12,6 +12,9 @@ internal enum class AssessmentLevel(val label: String) {
 
 internal data class Assessment(val level: AssessmentLevel)
 
+internal fun displayDurationMs(level: AssessmentLevel, durationMs: Long): Long? =
+    durationMs.takeUnless { level == AssessmentLevel.UNSUPPORTED }
+
 internal fun assess(result: ProbeResult): Assessment {
     if (!result.success) {
         val unavailable =

@@ -97,13 +97,19 @@ class MainActivity : AppCompatActivity() {
                                 setStatus(
                                     statusViews.getValue(result.kind),
                                     result.kind,
-                                    level.label,
+                                    displayDurationMs(level, result.durationMs)?.let { durationMs ->
+                                        getString(
+                                            R.string.status_with_duration,
+                                            level.label,
+                                            durationMs,
+                                        )
+                                    } ?: level.label,
                                     level,
                                 )
                             }
 
                             is DiagnosticEvent.Finished -> {
-                                summary.text = summaryText(abnormal, slow)
+                                summary.text = summaryText(abnormal, slow, event.report.durationMs)
                                 summary.setTextColor(
                                     color(
                                         when {
@@ -136,12 +142,13 @@ class MainActivity : AppCompatActivity() {
         view.setTextColor(level?.let(::color) ?: "#666666".toColorInt())
     }
 
-    private fun summaryText(abnormal: Int, slow: Int): String =
+    private fun summaryText(abnormal: Int, slow: Int, durationMs: Long): String =
         when {
-            abnormal > 0 && slow > 0 -> "发现 $abnormal 项异常，$slow 项较慢"
-            abnormal > 0 -> "发现 $abnormal 项异常，请查看检测结果"
-            slow > 0 -> "网络可用，$slow 项响应较慢"
-            else -> "网络状态正常"
+            abnormal > 0 && slow > 0 ->
+                getString(R.string.summary_abnormal_slow, abnormal, slow, durationMs)
+            abnormal > 0 -> getString(R.string.summary_abnormal, abnormal, durationMs)
+            slow > 0 -> getString(R.string.summary_slow, slow, durationMs)
+            else -> getString(R.string.summary_normal, durationMs)
         }
 
     private fun color(level: AssessmentLevel): Int =

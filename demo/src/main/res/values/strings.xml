@@ -12,4 +12,9 @@
     <string name="start_diagnostic">开始检测</string>
     <string name="show_details">查看详细结果</string>
     <string name="status_format">%1$s　%2$s</string>
+    <string name="status_with_duration">%1$s　%2$d ms</string>
+    <string name="summary_abnormal_slow">发现 %1$d 项异常，%2$d 项较慢，总耗时 %3$d ms</string>
+    <string name="summary_abnormal">发现 %1$d 项异常，总耗时 %2$d ms</string>
+    <string name="summary_slow">网络可用，%1$d 项响应较慢，总耗时 %2$d ms</string>
+    <string name="summary_normal">网络状态正常，总耗时 %1$d ms</string>
 </resources>
